@@ -1,36 +1,47 @@
 package com.xxx;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
-/**
- * @Info 合并整个Android项目源代码（java+xml）到一个文件，用于申请软著权
- * @Auth Bello
- * @Time 18-10-31 下午5:44
- * @Ver
- */
-public class MergeCode {
+public class code {
+
     static List<File> codeFiles = new ArrayList<>();
     static String mergeFile = "./code.txt";
+    static String nameFile = "./file.txt";
+
+    static String path = "/home/ubt/workspaces/WorkSpace_CashLai/EasyLoan/app/src/main/";
 
     public static void main(String[] args) throws Exception {
 
-        String path = "/路径/app/src/main/";
         if (!new File(path).exists()) {
             System.out.println("path is not exist!");
             return;
         }
 
-        getListFiles(new File(path));
 
+        getListFilesFromName();
+
+//        getListFiles(new File(path));
         merge();
+    }
+
+
+    /**
+     * 按文件名称来获取源码
+     * @throws Exception
+     */
+    private static void getListFilesFromName() throws Exception {
+        FileInputStream isr = new FileInputStream(new File(nameFile));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(isr));
+        String str = "";
+        while ((str = reader.readLine())!=null){
+            if (!str.isEmpty())
+                getListFiles(new File(path), str);
+        }
+        reader.close();
+        isr.close();
     }
 
 
@@ -39,14 +50,16 @@ public class MergeCode {
      *
      * @param file
      */
-    public static void getListFiles(File file) throws Exception {
+    public static void getListFiles(File file, String fileName) throws Exception {
         File[] listFiles = file.listFiles();
         for (File f : listFiles) {
             //只获取java和xml文件
-            if (f.isFile() && (f.getName().endsWith(".java") || f.getName().endsWith(".xml"))) {
+//            if (f.isFile() && (f.getName().endsWith(".java") || f.getName().endsWith(".xml"))) {
+            //按文件名称
+            if (f.isFile() && (f.getName().equals(fileName))) {
                 codeFiles.add(f.getAbsoluteFile());
             } else if (f.isDirectory()) {
-                getListFiles(f);
+                getListFiles(f, fileName);
             }
         }
     }
@@ -78,5 +91,5 @@ public class MergeCode {
         System.out.println("over~~");
     }
 
-
 }
+
